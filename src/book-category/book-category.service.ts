@@ -1,0 +1,50 @@
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { CreateBookCategoryDto } from './dto/create-book-category.dto';
+import { UpdateBookCategoryDto } from './dto/update-book-category.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { BookCategory } from './entities/book-category.entity';
+import { Repository } from 'typeorm';
+
+@Injectable()
+export class BookCategoryService implements OnModuleInit {
+  
+  constructor(
+    @InjectRepository(BookCategory)
+    private repo: Repository<BookCategory>,
+  ) {}
+
+  async onModuleInit() {
+    const count = await this.repo.count();
+    if (count === 0) {
+      console.log('Seeding Book Categories...');
+      await this.repo.save([
+        { name: 'Fiction', description: 'Stories and novels' },
+        { name: 'Technology', description: 'Computers and engineering' },
+        { name: 'History', description: 'Past events' }
+      ]);
+    }
+  }
+
+  // จุดสำคัญคือตรงนี้ครับ! ต้องใช้ this.repo.save()
+  create(createBookCategoryDto: CreateBookCategoryDto) {
+    return this.repo.save(createBookCategoryDto);
+  }
+
+  // จุดสำคัญคือตรงนี้ครับ! ต้องใช้ this.repo.find()
+  findAll() {
+    return this.repo.find();
+  }
+
+  // แก้ให้ค้นหาด้วย ID
+  findOne(id: string) {
+    return this.repo.findOneBy({ id });
+  }
+
+  update(id: string, updateBookCategoryDto: UpdateBookCategoryDto) {
+    return this.repo.update(id, updateBookCategoryDto);
+  }
+
+  remove(id: string) {
+    return this.repo.delete(id);
+  }
+}

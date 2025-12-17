@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BookCategoryModule } from './book-category/book-category.module'; // (อาจจะมีอยู่แล้ว)
+import { BookCategory } from './book-category/entities/book-category.entity'; // <--- 1. อย่าลืม Import บรรทัดนี้!
 
 @Module({
   imports: [
@@ -10,9 +12,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       username: 'admin',
       password: 'password123',
       database: 'bookstore_dev',
-      entities: [], // เราจะเพิ่ม Entities ที่นี่ในภายหลัง
-      synchronize: true, // สร้าง Table อัตโนมัติ (ใช้สำหรับ Dev เท่านั้น)
+      entities: [BookCategory],  // <--- 2. ใส่ BookCategory เข้าไปตรงนี้ (จากเดิมที่เป็น [])
+      synchronize: true,
     }),
+    BookCategoryModule,
   ],
 })
 export class AppModule {}
