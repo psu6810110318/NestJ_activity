@@ -25,17 +25,16 @@ export class BookCategoryService implements OnModuleInit {
     }
   }
 
-  // จุดสำคัญคือตรงนี้ครับ! ต้องใช้ this.repo.save()
-  create(createBookCategoryDto: CreateBookCategoryDto) {
-    return this.repo.save(createBookCategoryDto);
-  }
+create(createBookCategoryDto: CreateBookCategoryDto) {
+  return this.repo.save(createBookCategoryDto);
+}
 
-  // จุดสำคัญคือตรงนี้ครับ! ต้องใช้ this.repo.find()
+ 
   findAll() {
     return this.repo.find();
   }
 
-  // แก้ให้ค้นหาด้วย ID
+  
   findOne(id: string) {
     return this.repo.findOneBy({ id });
   }

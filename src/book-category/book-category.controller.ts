@@ -19,19 +19,19 @@ export class BookCategoryController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    // ลบ + ออก เหลือแค่ id เฉยๆ
+   
     return this.bookCategoryService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBookCategoryDto: UpdateBookCategoryDto) {
-    // ลบ + ออก เหลือแค่ id เฉยๆ
+    
     return this.bookCategoryService.update(id, updateBookCategoryDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    // ลบ + ออก เหลือแค่ id เฉยๆ
+    
     return this.bookCategoryService.remove(id);
   }
 }
