@@ -4,6 +4,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Book } from './entities/book.entity';
 import { Repository } from 'typeorm';
+import { User } from '../users/entities/user.entity'; // Import User
 
 @Injectable()
 export class BookService {
@@ -12,36 +13,41 @@ export class BookService {
     private bookRepository: Repository<Book>,
   ) {}
 
-  create(createBookDto: CreateBookDto) {
-    return this.bookRepository.save(createBookDto);
-  }
+  // ... (Method อื่นๆ create, findAll, update, remove เก็บไว้เหมือนเดิม) ...
+  create(createBookDto: CreateBookDto) { return this.bookRepository.save(createBookDto); }
+  findAll() { return this.bookRepository.find({ relations: ['category'] }); }
+  findOne(id: string) { return this.bookRepository.findOne({ where: { id }, relations: ['category'] }); }
+  update(id: string, updateBookDto: UpdateBookDto) { return this.bookRepository.update(id, updateBookDto); }
+  remove(id: string) { return this.bookRepository.delete(id); }
 
-  findAll() {
-    return this.bookRepository.find({ relations: ['category'] }); // ดึงหมวดหมู่มาโชว์ด้วย
-  }
-
-  findOne(id: string) {
-    return this.bookRepository.findOne({ 
-      where: { id },
-      relations: ['category'] 
+  // 👇 แก้ไขฟังก์ชันนี้ใหม่หมดเลยครับ (เปลี่ยนชื่อเป็น toggleLike ให้สื่อความหมาย)
+  async toggleLike(bookId: string, userId: string) {
+    // 1. ดึงข้อมูลหนังสือ พร้อมรายชื่อคนกดไลก์ (Relations)
+    const book = await this.bookRepository.findOne({
+      where: { id: bookId },
+      relations: ['likedBy'], 
     });
-  }
 
-  update(id: string, updateBookDto: UpdateBookDto) {
-    return this.bookRepository.update(id, updateBookDto);
-  }
-
-  remove(id: string) {
-    return this.bookRepository.delete(id);
-  }
-
-  // 👇 นี่คือฟังก์ชันกดไลก์ที่คุณถามถึงครับ
-  async incrementLikes(id: string) {
-    const book = await this.bookRepository.findOneBy({ id });
     if (!book) {
-      throw new NotFoundException(`Book with ID ${id} not found`);
+      throw new NotFoundException(`Book not found`);
     }
-    book.likeCount += 1;
+
+    
+    const userIndex = book.likedBy.findIndex((user) => user.id === userId);
+
+    if (userIndex !== -1) {
+      
+      book.likedBy.splice(userIndex, 1);
+      book.likeCount -= 1; 
+    } else {
+      
+      const user = new User();
+      user.id = userId; 
+      book.likedBy.push(user);
+      book.likeCount += 1; 
+    }
+
+    
     return this.bookRepository.save(book);
   }
 }
